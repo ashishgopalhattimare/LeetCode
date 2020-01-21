@@ -1,11 +1,10 @@
-#include <bits/stdc++.h>
-using namespace std;
-
-// https://leetcode.com/problems//
+// https://leetcode.com/problems/iterator-for-combination/
+// Medium
 
 class CombinationIterator {
 private:
     list<string>ll;
+    
     string str;
     int length;
 
@@ -39,18 +38,3 @@ public:
         return !(ll.empty());
     }
 };
-
-// 1299 Question
-int main()
-{
-    string str = "abc";
-    int len = 2;
-
-    CombinationIterator *sol = new CombinationIterator(str, len);
-
-    while(sol->hasNext()) {
-        cout << sol->next() << endl;
-    }
-    
-    return 0;
-}
