@@ -1,87 +1,86 @@
-// https://www.hackerearth.com/practice/data-structures/queues/basics-of-queues/practice-problems/algorithm/weird-planet-2000a170/
-// Medium, Queue, TLE
+// Queue (UNDONE)
 
-#include <bits/stdc++.h>
-
+#include<bits/stdc++.h>
 using namespace std;
 
-struct Crew
-{
-	int s, e, h;
-	Crew(int s, int e, int h) : s(s),e(e),h(h)
-	{}
+#define LL long long int
 
-	bool operator<(const Crew& other) const {
-	    return h < other.h;
-	}
-};
+vector<string> weirdPlanet(vector<vector<int>>& crew, vector<vector<int>>& member)
+{   
+    // Descendig Sort the queries according to incoming time
+    sort(member.begin(), member.end(), [](vector<int>& a, vector<int>& b) {
+        if(a[2] == b[2]) {
+            return a[1] > b[1];
+        }
+        return a[2] > b[2];
+    });
 
-struct People
-{
-	int h, i, t;
-	People(int h, int t, int i):h(h),t(t),i(i)
-	{}
-};
+    sort(crew.begin(), crew.end(), [](vector<int>& a, vector<int>& b) {
+        if(a[2] == b[2]) {
+            return a[1] > b[1];
+        }
+        return a[2] > b[2];
+    });
+    
+    vector<string> result(member.size(), "YES");
+
+    int m = 0, c = 0;
+    while(m < member.size() && c < crew.size())
+    {
+        vector<int> mem = member[m];
+        vector<int> cre = crew[c];
+
+        int ch = cre[0], cs = cre[1], ce = cre[2];
+        int mh = mem[1], mt = mem[2];
+
+        // printf("crew : [%d,%d,%d], member : [%d,%d]\n", ch, cs, ce, mh, mt);
+
+        if(ce < mt) m++;
+        else if(mt < cs) c++;
+        else if(cs <= mt && mt <= ce) { // member is in the range of crew time
+            if(mh <= ch) {
+                result[mem[0]] = "NO";
+            }
+            m++;
+        }
+    }
+
+    return result;
+}
 
 int main()
 {
-	int H, C, Q;
-	int h, S, E;
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);
 
-	cin >> H >> C >> Q;
+    ifstream infile; infile.open("input.txt");
+    
+    int H, C, Q;
+    int h, S, E;
+    int t;
 
-	vector<Crew>crew;
-	vector<People>people;
+    // Hours, Crew count, Queries
+    infile >> H >> C >> Q;
 
-	for(int i = 0; i < C; i++) {
-		cin >> h >> S >> E;
-		crew.push_back({S, E, h});
-	}
-	for(int i = 0; i < Q; i++) {
-		cin >> h >> S;
-		people.push_back({h, S, i});
-	}
+    vector<vector<int>> arr(C);
+    for(int i = 0; i < C; i++) {
 
-	std::sort(crew.begin(), crew.end(), [](Crew& a, Crew& b) {
-		return a.s < b.s;
-	});
+        // hours, start time, end time
+        infile >> h >> S >> E;
+        arr[i] = {h,S,E};
+    }
 
-	std::sort(people.begin(), people.end(), [](People& a, People& b) {
-		return a.t < b.t;
-	});
+    vector<vector<int>> queries(Q);
+    for(int i = 0; i < Q; i++)
+    {
+        infile >> h >> t;
+        queries[i] = {i,h,t};
+    }
 
-	vector<string>output(Q, "YES");
+    vector<string> result = weirdPlanet(arr, queries);
+    for(string x : result) {
+        cout << x << '\n';
+    }
 
-	int ic=0, ip=0;
-
-	priority_queue<Crew>pq;
-	                              /* Crew Priority is not empty or some are left */
-	for(int i = 0; i <= H && (ic < crew.size() || !pq.empty()) && ip < people.size(); i++) {
-
-		// Push all the Members whose time has come to enter
-		while(ic < crew.size() && crew[ic].s == i) {
-			pq.push(crew[ic++]);
-		}
-
-		// While people arrival time is equal to curr time
-		while(ip < people.size() && people[ip].t == i) {
-			// If no crew available, they are allowed, else
-			// if any available crew's height is greater than people height
-			// dont allow them
-			if(!pq.empty() && pq.top().h >= people[ip].h) {
-				output[people[ip].i] = "NO";
-			}
-			ip++;
-		}
-
-		// Release Crew whose time is up
-		while(!pq.empty() && pq.top().e <= i) {
-			pq.pop();
-		}
-	}
-
-	for(string x : output) {
-		cout << x << endl;
-	}
-	return 0;
+    return 0;
 }
